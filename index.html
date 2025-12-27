@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsiaX Pro Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #000; color: #fff; font-family: 'Inter', sans-serif; }
+        .gold-text { color: #f3ba2f; }
+        .gold-grad-text { background: linear-gradient(180deg, #FFD700 0%, #B8860B 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .bg-card { background-color: #0D0D0D; border: 1px solid #1A1A1A; border-radius: 12px; }
+        .btn-gold { background: linear-gradient(180deg, #FFD700 0%, #B8860B 100%); color: #000; font-weight: bold; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .btn-cyan { background: #00F5FF; color: #000; font-weight: bold; border-radius: 8px; }
+        .input-box { background: #111; border: 1px solid #222; color: #fff; border-radius: 6px; padding: 12px; width: 100%; font-size: 13px; }
+        .app-container { max-width: 410px; margin: 0 auto; padding: 12px; }
+        .circle-lg { width: 85px; height: 85px; border: 4px solid #151515; border-top-color: #f3ba2f; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; margin: 0 auto; font-weight: bold; }
+        
+        .pool-dot { width: 45px; height: 45px; border: 2px solid #222; border-top-color: #f3ba2f; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; transition: 0.3s; }
+        .pool-done { border-top-color: #22c55e !important; color: #22c55e !important; border-color: #22c55e; }
+        .pool-expired { border-top-color: #ef4444 !important; opacity: 0.4; }
+
+        .soc-img-container { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .soc-img-container img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="flex flex-col items-center py-6">
+        <img src="prologo.png" alt="AsiaX Pro Logo" class="h-16 w-auto mb-2">
+        <button onclick="connectWallet()" id="walletBtn" class="mt-4 btn-gold w-full py-1.5 uppercase text-[11px] tracking-widest shadow-lg shadow-yellow-900/10">Connect Wallet</button>
+    </div>
+
+    <div class="space-y-3 mb-4">
+        <div>
+            <p class="text-[9px] text-gray-500 uppercase font-bold mb-1 ml-1">My Address</p>
+            <div class="input-box flex justify-between items-center opacity-60">
+                <span id="userAddr" class="truncate text-[10px]">0x0000...0000</span>
+                <i class="fa-solid fa-clone text-[10px] cursor-pointer" onclick="copyText('userAddr')"></i>
+            </div>
+        </div>
+        <div>
+            <p class="text-[9px] text-gray-500 uppercase font-bold mb-1 ml-1">Upline Address</p>
+            <div class="input-box flex justify-between items-center opacity-60">
+                <span id="uplineAddrDisplay" class="truncate text-[10px]">0x0000...0000</span>
+                <i class="fa-solid fa-link text-[10px]"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-card p-6 mb-4 text-center border-[#222]">
+        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Total Income</p>
+        <h2 class="text-4xl font-bold mt-2"><span id="totalIncomeDisplay">0.00</span> <span class="text-sm gold-grad-text italic font-bold">AX</span></h2>
+        <div class="grid grid-cols-5 gap-0 mt-8">
+            <div class="text-center"><i class="fa-solid fa-bolt text-yellow-500 text-lg mb-1"></i><p class="text-[7px] text-gray-500 uppercase">ROI</p></div>
+            <div class="text-center"><i class="fa-solid fa-crown text-yellow-600 text-lg mb-1"></i><p class="text-[7px] text-gray-500 uppercase">Sponsor</p></div>
+            <div class="text-center"><i class="fa-solid fa-users-rays text-yellow-700 text-lg mb-1"></i><p class="text-[7px] text-gray-500 uppercase">Gen</p></div>
+            <div class="text-center"><i class="fa-solid fa-trophy text-yellow-500 text-lg mb-1"></i><p class="text-[7px] text-gray-500 uppercase">Pools</p></div>
+            <div class="text-center"><i class="fa-solid fa-star text-yellow-400 text-lg mb-1"></i><p class="text-[7px] text-gray-500 uppercase">Top</p></div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <p class="text-[9px] text-gray-500 uppercase font-bold mb-1 ml-1">Your Referral Link</p>
+        <div class="flex gap-1">
+            <input type="text" id="refLink" readonly value="Connect Wallet to get link" class="input-box flex-1 py-2 text-[10px] border-[#222]">
+            <button onclick="copyText('refLink')" class="btn-gold px-4 text-[10px]">COPY</button>
+        </div>
+    </div>
+
+    <div class="bg-card p-4 mb-4 border-[#222]">
+        <p class="text-[10px] text-gray-400 uppercase font-bold mb-4">Your Investments</p>
+        <div class="flex justify-between items-end">
+            <div>
+                <p class="text-[9px] text-gray-500 uppercase">Deposit (AX)</p>
+                <h3 class="text-xl font-bold" id="totalDeposit">0 AX</h3>
+                <p class="text-[8px] text-gray-600 mt-1" id="lastDepositDate">Start: --</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[9px] text-gray-500 uppercase">Earned</p>
+                <h3 class="text-xl font-bold gold-grad-text" id="totalEarned">0.00 AX</h3>
+                <p class="text-[8px] text-cyan-400 font-bold uppercase">175% ROI CAP</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-card p-4 mb-4 border-[#222]">
+        <p class="text-[10px] text-gray-400 uppercase font-bold mb-3">Withdraw to your Wallet</p>
+        <div class="relative">
+            <input type="number" id="withdrawInput" placeholder="Amount (AX)" class="input-box pr-16 text-cyan-400 font-bold">
+            <button onclick="setMaxWithdraw()" class="absolute right-3 top-3 text-cyan-400 font-bold text-[11px]">MAX</button>
+        </div>
+        <button onclick="walletWithdraw()" class="btn-gold w-full py-2.5 mt-3 text-xs uppercase">Withdraw</button>
+        <div class="text-center mt-4">
+            <p class="text-[9px] text-gray-500 uppercase font-bold">Wallet Balance in Contract</p>
+            <h4 class="text-2xl font-bold mt-1" id="contractWalletBal">0.00 AX</h4>
+        </div>
+    </div>
+
+    <div class="bg-card p-4 mb-4 space-y-4 border-[#222]">
+        <div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-tight">
+            <span class="text-gray-500">Pending ROI</span><span id="roiInc">0 AX</span>
+        </div>
+        <div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-tight">
+            <span class="text-gray-500">Sponsor Income</span><span id="spInc">0 AX</span>
+        </div>
+        <div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-tight">
+            <span class="text-gray-500">Generations Income</span><span id="genInc">0 AX</span>
+        </div>
+        <div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-tight">
+            <span class="text-gray-500">Pool Income</span><span id="poolInc">0 AX</span>
+        </div>
+        <div class="flex gap-2 pt-2">
+            <button onclick="claimPoolRewards()" class="btn-gold flex-1 py-1.5 text-[9px] uppercase font-black">Claim Pool Rewards</button>
+            <button onclick="withdrawIncome()" class="btn-cyan flex-1 py-1.5 text-[9px] uppercase font-black">Claim Income Rewards</button>
+        </div>
+    </div>
+
+    <div class="bg-card p-4 mb-4 border-[#222]">
+        <div class="flex justify-between items-center mb-4">
+            <span class="text-[10px] text-gray-400 uppercase font-bold italic">Invest <span class="text-white ml-2 text-[11px] not-italic">Join Network</span></span>
+            <i class="fa-solid fa-user-plus text-cyan-400 text-sm"></i>
+        </div>
+        <input type="text" id="uplineInput" placeholder="Referrer Address (Required)" class="input-box mb-2 text-xs italic">
+        <div class="relative">
+            <input type="number" id="investAmount" placeholder="Amount (AX)" class="input-box pr-16 text-xs">
+            <button onclick="setMaxInvest()" class="absolute right-3 top-3 text-cyan-400 font-bold text-[11px]">MAX</button>
+        </div>
+        <button onclick="invest()" class="btn-cyan w-full py-3 mt-4 text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rocket"></i> Invest Now
+        </button>
+    </div>
+
+    <div class="bg-card p-4 mb-4 border-[#222]">
+        <p class="text-[10px] text-gray-400 uppercase font-bold mb-4 text-center tracking-widest">Your Wallet Balance</p>
+        <div class="grid grid-cols-3 text-center">
+            <div><p class="text-[8px] text-gray-500 uppercase font-bold">ASIAX</p><h5 id="bal-asiax" class="text-sm font-bold">0.00</h5></div>
+            <div><p class="text-[8px] text-gray-500 uppercase font-bold">USDT</p><h5 id="bal-usdt" class="text-sm font-bold">0.00</h5></div>
+            <div><p class="text-[8px] text-gray-500 uppercase font-bold">POL</p><h5 id="bal-pol" class="text-sm font-bold">0.00</h5></div>
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <p class="text-[10px] text-gray-400 uppercase font-bold mb-2 ml-1 tracking-widest">Buy ASIAX</p>
+        <div class="flex gap-2">
+            <button onclick="buyAsiaX()" class="btn-gold flex-1 py-2 text-[10px] uppercase">Buy ASIAX</button>
+            <button onclick="buyQuickSwap()" class="btn-gold flex-1 py-2 text-[10px] uppercase">Buy Quickswap</button>
+        </div>
+    </div>
+
+    <div class="flex justify-center gap-10 py-4 mb-6">
+        <a href="https://www.youtube.com/@ASIAXPRO" target="_blank" class="text-center">
+            <div class="soc-img-container shadow-[0_0_15px_rgba(255,0,0,0.3)] hover:scale-110">
+                <img src="youtube.png" alt="YouTube">
+            </div>
+            <p class="text-[8px] mt-2 text-gray-400 font-bold uppercase">YouTube</p>
+        </a>
+        <a href="https://polygonscan.com/address/0xE36b5223d488322fAc2dDda937E5aB226E83Fbbd#code" target="_blank" class="text-center">
+            <div class="soc-img-container shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:scale-110">
+                <img src="polygon.png" alt="Website">
+            </div>
+            <p class="text-[8px] mt-2 text-gray-400 font-bold uppercase">Polygon</p>
+        </a>
+        <a href="https://t.me/asiax_coin" target="_blank" class="text-center">
+            <div class="soc-img-container shadow-[0_0_15px_rgba(0,136,204,0.3)] hover:scale-110">
+                <img src="telegram.png" alt="Telegram">
+            </div>
+            <p class="text-[8px] mt-2 text-gray-400 font-bold uppercase">Telegram</p>
+        </a>
+    </div>
+
+    <div class="bg-card p-4 mb-4 border-[#222]">
+        <p class="text-[10px] text-gray-400 uppercase font-bold mb-5 tracking-widest">Your Network</p>
+        <div class="flex justify-between items-center text-center">
+            <div><div id="directs" class="circle-lg">0/10</div><p class="text-[8px] text-gray-500 mt-2 uppercase font-bold">Total Directs</p></div>
+            <div><div id="team" class="circle-lg" style="border-top-color:#00F5FF">0</div><p class="text-[8px] text-gray-500 mt-2 uppercase font-bold">Total Team</p></div>
+            <div><div id="business" class="circle-lg">0</div><p class="text-[8px] text-gray-500 mt-2 uppercase font-bold">Business</p></div>
+        </div>
+    </div>
+
+    <div class="bg-card p-4 mb-12 border-[#222]">
+        <div class="flex justify-between items-center mb-4">
+            <p class="text-[10px] text-gray-400 uppercase font-bold">Pool Performance</p>
+            <p id="poolTimer" class="text-[8px] bg-red-600 px-2 py-0.5 rounded-sm font-bold animate-pulse text-white">DEADLINE: --:--:--</p>
+        </div>
+        <div class="flex justify-around items-center">
+            <div class="text-center"><div id="dot-silver" class="pool-dot">SILVER</div><p id="timer-silver" class="text-[6px] text-gray-500 mt-1 font-bold">30 Days</p></div>
+            <div class="text-center"><div id="dot-gold" class="pool-dot" style="border-top-color:#00F5FF">GOLD</div><p id="timer-gold" class="text-[6px] text-gray-500 mt-1 font-bold">75 Days</p></div>
+            <div class="text-center"><div id="dot-plat" class="pool-dot">PLAT</div><p id="timer-plat" class="text-[6px] text-gray-500 mt-1 font-bold">135 Days</p></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- SETTINGS (Isse badle) ---
+    const CONTRACT_ADDR = "0xF6d0d72AAf0Bbf5C459E680f1e6E75E3B1ce1f06";
+    const TOKEN_ADDR = "0xE36b5223d488322fAc2dDda937E5aB226E83Fbbd";
+    const USDT_ADDR = "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"; 
+
+    const ABI = [
+        "function invest(address _referrer, uint256 _amount) external",
+        "function withdraw() external",
+        "function claimPoolRewards() external",
+        "function WalletWithdraw(uint256 _amount) external",
+        "function userBasic(address) view returns (address,uint256,uint256,uint256,uint256)",
+        "function userNetwork(address) view returns (uint256,uint256,bool,bool,bool,uint256,uint256,uint256)",
+        "function getUserIncome(address) view returns (uint256,uint256,uint256,uint256,uint256)",
+        "function userWallet(address) view returns (uint256,uint256,uint256)",
+        "function users(address) view returns (address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256)"
+    ];
+    const ERC20_ABI = ["function balanceOf(address owner) view returns (uint256)", "function approve(address spender, uint256 amount) returns (bool)"];
+
+    let signer, provider, mainContract, tokenContract;
+    let poolInterval;
+
+    async function connectWallet() {
+        if (!window.ethereum) return alert("Install MetaMask");
+        provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        const addr = await signer.getAddress();
+        mainContract = new ethers.Contract(CONTRACT_ADDR, ABI, signer);
+        tokenContract = new ethers.Contract(TOKEN_ADDR, ERC20_ABI, signer);
+        document.getElementById('walletBtn').innerText = addr.substring(0,6)+"..."+addr.substring(38);
+        document.getElementById('userAddr').innerText = addr;
+        document.getElementById('refLink').value = window.location.origin + "?ref=" + addr;
+        loadData(addr);
+    }
+
+    async function loadData(addr) {
+        try {
+            // Balances
+            const pol = await provider.getBalance(addr);
+            const ax = await tokenContract.balanceOf(addr);
+            const usdt = await new ethers.Contract(USDT_ADDR, ERC20_ABI, provider).balanceOf(addr);
+            document.getElementById('bal-pol').innerText = parseFloat(ethers.formatEther(pol)).toFixed(3);
+            document.getElementById('bal-asiax').innerText = parseFloat(ethers.formatUnits(ax, 18)).toFixed(2);
+            document.getElementById('bal-usdt').innerText = parseFloat(ethers.formatUnits(usdt, 6)).toFixed(2);
+
+            // Contract Data
+            const basic = await mainContract.userBasic(addr);
+            const network = await mainContract.userNetwork(addr);
+            const income = await mainContract.getUserIncome(addr);
+            const wallet = await mainContract.userWallet(addr);
+
+            document.getElementById('totalDeposit').innerText = ethers.formatUnits(basic[1], 18) + " AX";
+            document.getElementById('contractWalletBal').innerText = ethers.formatUnits(wallet[0], 18) + " AX";
+            document.getElementById('roiInc').innerText = ethers.formatUnits(income[0], 18) + " AX";
+            document.getElementById('spInc').innerText = ethers.formatUnits(income[1], 18) + " AX";
+            document.getElementById('genInc').innerText = ethers.formatUnits(income[2], 18) + " AX";
+            document.getElementById('poolInc').innerText = ethers.formatUnits(income[3], 18) + " AX";
+            document.getElementById('totalIncomeDisplay').innerText = ethers.formatUnits(income[4], 18);
+            document.getElementById('directs').innerText = network[1] + "/10";
+            
+            // Pool Membership (Green check)
+            if(network[2]) document.getElementById('dot-silver').classList.add('pool-done');
+            if(network[3]) document.getElementById('dot-gold').classList.add('pool-done');
+            if(network[4]) document.getElementById('dot-plat').classList.add('pool-done');
+
+            // Countdown Timer Logic
+            const firstInvestmentTime = Number(basic[2]);
+            if (firstInvestmentTime > 0) {
+                if(poolInterval) clearInterval(poolInterval);
+                poolInterval = setInterval(() => runPoolTimers(firstInvestmentTime, network), 1000);
+            }
+        } catch (e) { console.log(e); }
+    }
+
+    function runPoolTimers(startTime, network) {
+        const now = Math.floor(Date.now() / 1000);
+        const deadlines = [
+            { id: 'silver', time: startTime + (30 * 86400), done: network[2] },
+            { id: 'gold', time: startTime + (75 * 86400), done: network[3] },
+            { id: 'plat', time: startTime + (135 * 86400), done: network[4] }
+        ];
+
+        deadlines.forEach(p => {
+            const el = document.getElementById(`timer-${p.id}`);
+            const dot = document.getElementById(`dot-${p.id}`);
+            if (p.done) {
+                el.innerText = "QUALIFIED";
+                el.style.color = "#22c55e";
+            } else {
+                const diff = p.time - now;
+                if (diff > 0) {
+                    const days = Math.floor(diff / 86400);
+                    const hrs = Math.floor((diff % 86400) / 3600);
+                    el.innerText = `${days}d ${hrs}h Left`;
+                } else {
+                    el.innerText = "EXPIRED";
+                    dot.classList.add('pool-expired');
+                }
+            }
+        });
+    }
+
+    async function invest() {
+        const amt = document.getElementById('investAmount').value;
+        const ref = document.getElementById('uplineInput').value || "0x0000000000000000000000000000000000000000";
+        if(!amt) return alert("Enter amount");
+        const wei = ethers.parseUnits(amt, 18);
+        try {
+            await (await tokenContract.approve(CONTRACT_ADDR, wei)).wait();
+            await (await mainContract.invest(ref, wei)).wait();
+            alert("Investment Successful!"); loadData(await signer.getAddress());
+        } catch (e) { alert("Transaction Failed"); }
+    }
+
+    async function walletWithdraw() {
+        const amt = document.getElementById('withdrawInput').value;
+        if(!amt) return;
+        try {
+            await (await mainContract.WalletWithdraw(ethers.parseUnits(amt, 18))).wait();
+            alert("Withdraw Successful!"); loadData(await signer.getAddress());
+        } catch (e) { alert("Failed"); }
+    }
+
+    async function withdrawIncome() { 
+        try { await (await mainContract.withdraw()).wait(); alert("Income Claimed!"); loadData(await signer.getAddress()); } catch(e) {}
+    }
+
+    async function claimPoolRewards() { 
+        try { await (await mainContract.claimPoolRewards()).wait(); alert("Pool Rewards Claimed!"); loadData(await signer.getAddress()); } catch(e) {}
+    }
+
+    function buyAsiaX() { window.open(`https://quickswap.exchange/#/swap?outputCurrency=${TOKEN_ADDR}`, '_blank'); }
+    function buyQuickSwap() { window.open('https://quickswap.exchange/', '_blank'); }
+    
+    function copyText(id) {
+        const el = document.getElementById(id);
+        const val = el.tagName === 'INPUT' ? el.value : el.innerText;
+        navigator.clipboard.writeText(val); alert("Copied!");
+    }
+</script>
+</body>
+</html>
