@@ -160,19 +160,19 @@
     </div>
 
     <div class="flex justify-center gap-10 py-4 mb-6">
-        <a href="#" target="_blank" class="text-center">
+        <a href="https://www.youtube.com/@ASIAXPRO" target="_blank" class="text-center">
             <div class="soc-img-container shadow-[0_0_15px_rgba(255,0,0,0.3)] hover:scale-110">
                 <img src="youtube.png" alt="YouTube">
             </div>
             <p class="text-[8px] mt-2 text-gray-400 font-bold uppercase">YouTube</p>
         </a>
-        <a href="#" target="_blank" class="text-center">
+        <a href="https://polygonscan.com/address/0xE36b5223d488322fAc2dDda937E5aB226E83Fbbd#code" target="_blank" class="text-center">
             <div class="soc-img-container shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:scale-110">
                 <img src="polygon.png" alt="Website">
             </div>
             <p class="text-[8px] mt-2 text-gray-400 font-bold uppercase">Website</p>
         </a>
-        <a href="#" target="_blank" class="text-center">
+        <a href="https://t.me/asiax_coin" target="_blank" class="text-center">
             <div class="soc-img-container shadow-[0_0_15px_rgba(0,136,204,0.3)] hover:scale-110">
                 <img src="telegram.png" alt="Telegram">
             </div>
@@ -319,9 +319,10 @@
 
     async function withdrawIncome() { try { await (await mainContract.withdraw()).wait(); loadData(await signer.getAddress()); } catch(e){} }
     async function claimPoolRewards() { try { await (await mainContract.claimPoolRewards()).wait(); loadData(await signer.getAddress()); } catch(e){} }
-    function buyAsiaX() { window.open(`https://dapp.quickswap.exchange/swap/v3/0xE36b5223d488322fAc2dDda937E5aB226E83Fbbd/0xc2132D05D31c914a87C6611C10748AEb04B58e8F?chainId=137`, '_blank'); }
-    function buyQuickSwap() { window.open('https://dapp.quickswap.exchange/swap/v3/0xE36b5223d488322fAc2dDda937E5aB226E83Fbbd/0xc2132D05D31c914a87C6611C10748AEb04B58e8F?chainId=137', '_blank'); }
+    function buyAsiaX() { window.open(`https://dapp.quickswap.exchange/swap/v3/0xc2132D05D31c914a87C6611C10748AEb04B58e8F/0xE36b5223d488322fAc2dDda937E5aB226E83Fbbd?chainId=137`, '_blank'); }
+    function buyQuickSwap() { window.open('https://dapp.quickswap.exchange/swap/v3/0xc2132D05D31c914a87C6611C10748AEb04B58e8F/0xE36b5223d488322fAc2dDda937E5aB226E83Fbbd?chainId=137', '_blank'); }
     function copyText(id) { navigator.clipboard.writeText(document.getElementById(id).tagName === 'INPUT' ? document.getElementById(id).value : document.getElementById(id).innerText); alert("Copied!"); }
 </script>
 </body>
 </html>
+
